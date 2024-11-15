@@ -1,38 +1,8 @@
 'use client'
-import React, { useEffect, useState } from 'react'
 import UserProfile from './UserProfile';
 import Logo from './Logo';
-
-const NavLinks = () => {
-    return (
-        <nav>
-            <ul className='hidden md:flex md:space-x-4'>
-                <li>Home</li>
-                <li>TV Shows</li>
-                <li>Movies</li>
-                <li>Latest</li>
-            </ul>
-        </nav>
-    )
-}
-
-
-const useScroll = () => {
-    const [isScrolled, setIsScrolled] = useState(false);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 0)
-        }
-        window.addEventListener('scroll', handleScroll);
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        }
-    }, []);
-
-    return isScrolled;
-}
-
+import NavLinks from './NavLinks';
+import useScroll from '../hooks/useScroll';
 
 export default function Header() {
     const isScrolled = useScroll()
