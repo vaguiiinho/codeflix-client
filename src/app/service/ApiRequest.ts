@@ -1,6 +1,4 @@
-
-
-const API_URL = 'http://localhost:3333'
+const API_URL = process.env.api_url || 'http://localhost:3333'
 
 export interface ApiQueryParams {
     [key: string]: string | number | boolean
@@ -12,9 +10,16 @@ export interface RequestOptions {
     reating_like?: string
 }
 
-export const defaultRequestOptions: RequestOptions = {
+export const defaultOptions: RequestOptions = {
     page: 1,
     _limit: 10
+}
+
+export function buildQueryString(params: ApiQueryParams) {
+    const query = Object.entries(params)
+        .filter(([, value]) => value !== undefined)
+        .map(([key, value]) => [key, encodeURIComponent(String(value))])
+    return `:${new URLSearchParams(Object.fromEntries(query)).toString()}`
 }
 
 export async function apirequest(
@@ -22,11 +27,19 @@ export async function apirequest(
     query: ApiQueryParams = {},
     options: RequestOptions = {}
 ) {
+    const mergedOptions: RequestOptions = { ...defaultOptions, ...options }
+    const queryString: string = buildQueryString({
+        ...query,
+        ...mergedOptions,
+    })
     try {
-        const response = fetch(`${API_URL}/{endpoint}`)
-        const data = await (await response).json()
-        return data
+        const response = await fetch(`${API_URL}/{endpoint}${queryString}`)
+        if (!response.ok) {
+            throw new Error(`API request failed: ${(await response).statusText}`)
+        }
+        return response.json()
+
     } catch (error) {
-        console.log(error)
+        throw error
     }
 }
